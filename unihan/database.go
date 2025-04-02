@@ -33,6 +33,7 @@ package unihan
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 )
 
 // Structs
@@ -57,18 +58,34 @@ type Han struct {
 }
 
 var (
-	Database = make(map[rune]*Han)
+	Database     = make(map[rune]*Han)
+	DatabaseLock sync.RWMutex
 )
 
 func DumpDatabase() {
+	DatabaseLock.Lock()
+	defer DatabaseLock.Unlock()
+
 	b, _ := json.MarshalIndent(Database, "", "  ")
 
 	fmt.Println(string(b))
 }
 
 func CountDatabase() int {
+	DatabaseLock.Lock()
+	defer DatabaseLock.Unlock()
+
 	return len(Database)
 }
+
+/* {{{ [Han struct] */
+func (h *Han) Dump() string {
+	b, _ := json.MarshalIndent(h, "", "  ")
+
+	return string(b)
+}
+
+/* }}} */
 
 /*
  * Local variables:

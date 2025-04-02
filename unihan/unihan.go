@@ -30,6 +30,41 @@
 
 package unihan
 
+import "unicode/utf8"
+
+func GetHanByUnicode(unicode string) *Han {
+	DatabaseLock.Lock()
+	defer DatabaseLock.Unlock()
+
+	codePoint := UnicodeToRune(unicode)
+	han, _ := Database[codePoint]
+
+	return han
+}
+
+func GetHanByCodePoint(codePoint rune) *Han {
+	DatabaseLock.Lock()
+	defer DatabaseLock.Unlock()
+
+	if codePoint > 0 {
+		return Database[codePoint]
+	}
+
+	return nil
+}
+
+func GetHanByValue(value string) *Han {
+	codePoint, _ := utf8.DecodeRuneInString(value)
+	DatabaseLock.Lock()
+	defer DatabaseLock.Unlock()
+
+	if codePoint > 0 {
+		return Database[codePoint]
+	}
+
+	return nil
+}
+
 /*
  * Local variables:
  * tab-width: 4

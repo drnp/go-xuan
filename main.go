@@ -43,8 +43,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Load unihan database success.")
-	fmt.Println(unihan.CountDatabase())
+	fmt.Println("Load unihan database success. Total character :", unihan.CountDatabase())
+	han := unihan.GetHanByValue("我") // 我
+	fmt.Println(han.Dump())
+
+	han = unihan.GetHanByCodePoint(40643) // 黄
+	fmt.Println(han.Dump())
+
+	han = unihan.GetHanByUnicode("U+5988") // 妈
+	fmt.Println(han.Dump())
 }
 
 /*
