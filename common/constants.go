@@ -22,50 +22,22 @@
  */
 
 /**
- * @file main.go
- * @package main
+ * @file constants.go
+ * @package common
  * @author Dr.NP <np@herewe.tech>
  * @since 04/01/2025
  */
 
-package main
+package common
 
-import (
-	"encoding/json"
-	"fmt"
-	"log"
-
-	"github.com/drnp/go-xuan/unihan"
+// WuXing (Five Elements)
+const (
+	Wood  = 0b00001
+	Fire  = 0b00010
+	Earth = 0b00100
+	Metal = 0b01000
+	Water = 0b10000
 )
-
-func main() {
-	err := unihan.Load("./data/Unihan")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Load unihan database success. Total character :", unihan.CountDatabase())
-	han := unihan.GetHanByValue("发") // 发
-	fmt.Println(han.Dump())
-	fmt.Println(han.TotalStrokes())
-	fmt.Println(han.WuXing())
-	fmt.Println(han.Pinyin())
-
-	b, _ := json.MarshalIndent(han.SemanticVariants(), "", "  ")
-	fmt.Println(string(b))
-	b, _ = json.MarshalIndent(han.SimplifiedVariants(), "", "  ")
-	fmt.Println(string(b))
-	b, _ = json.MarshalIndent(han.TraditionalVariants(), "", "  ")
-	fmt.Println(string(b))
-	b, _ = json.MarshalIndent(han.Readings(), "", "  ")
-	fmt.Println(string(b))
-
-	try := "我爱北京天安门，老板来个手抓饼。周潤發踢足球！！！"
-	fmt.Println(try)
-	fmt.Println(unihan.StrToSimplified(try))
-	fmt.Println(unihan.StrToTraditional(try))
-	fmt.Println(unihan.StrToPinyin(try))
-}
 
 /*
  * Local variables:

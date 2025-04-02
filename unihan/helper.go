@@ -22,49 +22,75 @@
  */
 
 /**
- * @file main.go
- * @package main
+ * @file helper.go
+ * @package unihan
  * @author Dr.NP <np@herewe.tech>
  * @since 04/01/2025
  */
 
-package main
+package unihan
 
-import (
-	"encoding/json"
-	"fmt"
-	"log"
+import "strings"
 
-	"github.com/drnp/go-xuan/unihan"
-)
-
-func main() {
-	err := unihan.Load("./data/Unihan")
-	if err != nil {
-		log.Fatal(err)
+func StrToSimplified(input string) string {
+	var sb strings.Builder
+	for _, r := range input {
+		han := GetHanByCodePoint(r)
+		if han != nil {
+			ss := han.SimplifiedVariants()
+			if len(ss) > 0 {
+				sHan := GetHanByUnicode(ss[0])
+				if sHan != nil {
+					sb.WriteRune(sHan.CodePoint)
+				} else {
+					sb.WriteRune(han.CodePoint)
+				}
+			} else {
+				sb.WriteRune(han.CodePoint)
+			}
+		} else {
+			sb.WriteRune(r)
+		}
 	}
 
-	fmt.Println("Load unihan database success. Total character :", unihan.CountDatabase())
-	han := unihan.GetHanByValue("发") // 发
-	fmt.Println(han.Dump())
-	fmt.Println(han.TotalStrokes())
-	fmt.Println(han.WuXing())
-	fmt.Println(han.Pinyin())
+	return sb.String()
+}
 
-	b, _ := json.MarshalIndent(han.SemanticVariants(), "", "  ")
-	fmt.Println(string(b))
-	b, _ = json.MarshalIndent(han.SimplifiedVariants(), "", "  ")
-	fmt.Println(string(b))
-	b, _ = json.MarshalIndent(han.TraditionalVariants(), "", "  ")
-	fmt.Println(string(b))
-	b, _ = json.MarshalIndent(han.Readings(), "", "  ")
-	fmt.Println(string(b))
+func StrToTraditional(input string) string {
+	var sb strings.Builder
+	for _, r := range input {
+		han := GetHanByCodePoint(r)
+		if han != nil {
+			ts := han.TraditionalVariants()
+			if len(ts) > 0 {
+				tHan := GetHanByUnicode(ts[0])
+				if tHan != nil {
+					sb.WriteRune(tHan.CodePoint)
+				} else {
+					sb.WriteRune(han.CodePoint)
+				}
+			} else {
+				sb.WriteRune(han.CodePoint)
+			}
+		} else {
+			sb.WriteRune(r)
+		}
+	}
 
-	try := "我爱北京天安门，老板来个手抓饼。周潤發踢足球！！！"
-	fmt.Println(try)
-	fmt.Println(unihan.StrToSimplified(try))
-	fmt.Println(unihan.StrToTraditional(try))
-	fmt.Println(unihan.StrToPinyin(try))
+	return sb.String()
+}
+
+func StrToPinyin(input string) string {
+	var sb strings.Builder
+	for _, r := range input {
+		han := GetHanByCodePoint(r)
+		if han != nil {
+			rPinyin, _ := han.Pinyin()
+			sb.WriteString(rPinyin)
+		}
+	}
+
+	return sb.String()
 }
 
 /*

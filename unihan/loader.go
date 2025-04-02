@@ -48,6 +48,7 @@ const (
 	RadicalStrokeCounts = "Unihan_RadicalStrokeCounts.txt"
 	Readings            = "Unihan_Readings.txt"
 	Variants            = "Unihan_Variants.txt"
+	WuXing              = "Unihan_WuXing.txt"
 )
 
 // Load unihan database from source files
@@ -96,6 +97,11 @@ func Load(path string) error {
 	}
 
 	err = loadVariants(path + "/" + Variants)
+	if err != nil {
+		return err
+	}
+
+	err = loadWuXing(path + "/" + WuXing)
 	if err != nil {
 		return err
 	}
@@ -496,6 +502,53 @@ func loadVariants(path string) error {
 				}
 
 				Database[codePoint].Properties.Variants[matches[2]] = append(Database[codePoint].Properties.Variants[matches[2]], strings.Fields(matches[3])...)
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func loadWuXing(path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		// Line by line
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
+
+		// Comments out
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		reLine := regexp.MustCompile(`(U\+.+?)\s+(k.+?)\s+(.+)`)
+		matches := reLine.FindStringSubmatch(line)
+		if len(matches) == 4 {
+			codePoint := UnicodeToRune(matches[1])
+			if codePoint > 0 {
+				// Create new item
+				if Database[codePoint] == nil {
+					Database[codePoint] = &Han{
+						CodePoint: codePoint,
+						Unicode:   matches[1],
+						Value:     string(codePoint),
+					}
+				}
+
+				Database[codePoint].Properties.WuXing = matches[3]
 			}
 		}
 	}
